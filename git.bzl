@@ -14,7 +14,7 @@
 """Rules for cloning external git repositories."""
 
 load(
-    ":utils.bzl",
+    "@bazel_tools//tools/build_defs/repo:utils.bzl",
     "patch",
     "update_attrs",
     "workspace_and_buildfile",
