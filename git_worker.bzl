@@ -128,6 +128,8 @@ def add_origin(ctx, git_repo, remote):
 
 def fetch(ctx, git_repo):
     args = ["fetch", "origin", git_repo.fetch_ref]
+    if ctx.attr.sparse_set:
+        args.append("--filter=blob:none")
     st = _git_maybe_shallow(ctx, git_repo, *args)
     if st.return_code == 0:
         return
@@ -152,6 +154,9 @@ def fetch(ctx, git_repo):
         _error(ctx.name, ["git"] + args, st.stderr)
 
 def reset(ctx, git_repo):
+    if ctx.attr.sparse_set:
+        _git(ctx, git_repo, "sparse-checkout", "init", "--cone")
+        _git(ctx, git_repo, "sparse-checkout", "set", *ctx.attr.sparse_set)
     _git(ctx, git_repo, "reset", "--hard", git_repo.reset_ref)
 
 def clean(ctx, git_repo):
