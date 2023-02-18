@@ -18,8 +18,8 @@ Example `WORKSPACE` file:
 ```Starlark
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-BETTER_GIT_COMMIT = "8bbf5ae44b409a57894e583d12fd4e4a977f3175"
-BETTER_GIT_SHA256 = "7a4cf00fc808187fcbaa3283fcbefb0ba455a9b6cfa8bc45a3518774d6306c36"
+BETTER_GIT_COMMIT = "90fd341fe40950a328cec69d4d8f65cff9f3a89d"
+BETTER_GIT_SHA256 = "8c55b1f3d01eaa35c46afed5aa18842fae8a8d63e67519a0af3ba670e51d1803"
 
 http_archive(
     name = "better_git_for_bazel",
