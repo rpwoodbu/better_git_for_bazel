@@ -128,10 +128,10 @@ def add_origin(ctx, git_repo, remote):
 
 def fetch(ctx, git_repo):
     args = ["fetch", "origin", git_repo.fetch_ref]
-    if ctx.attr.sparse_set:
+    if ctx.attr.sparse:
         _execute(ctx, git_repo, ["mkdir", ".git/info"])  # Workaround bug in git.
-        sparse_set_st = _git_maybe_shallow(ctx, git_repo, *(args + ["--filter=blob:none"]))
-        if sparse_set_st.return_code == 0:
+        sparse_st = _git_maybe_shallow(ctx, git_repo, *(args + ["--filter=blob:none"]))
+        if sparse_st.return_code == 0:
             return
         _report_progress(ctx, git_repo, warning = "partial clone failed, fetching all files")
     st = _git_maybe_shallow(ctx, git_repo, *args)
@@ -158,10 +158,10 @@ def fetch(ctx, git_repo):
         _error(ctx.name, ["git"] + args, st.stderr)
 
 def reset(ctx, git_repo):
-    if ctx.attr.sparse_set:
+    if ctx.attr.sparse:
         st = _execute(ctx, git_repo, ["git", "sparse-checkout", "init", "--cone"])
         if st.return_code == 0:
-            st = _execute(ctx, git_repo, ["git", "sparse-checkout", "set"] + ctx.attr.sparse_set)
+            st = _execute(ctx, git_repo, ["git", "sparse-checkout", "set"] + ctx.attr.sparse)
         if st.return_code != 0:
             _report_progress(ctx, git_repo, warning = "sparse checkout failed, fetching full worktree")
     _git(ctx, git_repo, "reset", "--hard", git_repo.reset_ref)

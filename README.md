@@ -4,7 +4,7 @@ A more efficient `git_repository()` for Bazel when used with large repos.
 If you need to bring in just a tiny slice of a large repo, this can improve fetching time drastically.
 
 This is a fork of the `git_repository()` that ships with Bazel, so it is a drop-in replacement.
-It adds a new attribute called `sparse_set`, which maps to Git's
+It adds a new attribute called `sparse`, which maps to Git's
 [sparse checkout](https://git-scm.com/docs/git-sparse-checkout) feature, making it possible to
 depend only on specific directories in an external repo without having to checkout the whole tree.
 It also utilizes Git's [partial clone](https://git-scm.com/docs/partial-clone) feature to avoid
@@ -34,13 +34,13 @@ git_repository(
     name = "my_enormous_repo",
     remote = "ENORMOUS_REPO_REMOTE",  # Replace with your repo.
     commit = "ENORMOUS_REPO_COMMIT",  # Replace with your commit.
-    sparse_set = [
+    sparse = [
         # These are directories in the external repo that you want to checkout.
         # The only other files that will be downloaded are those in the root of the repo.
         # If there are transitive dependencies on directories not in this list,
         # things will break.
         #
-        # If `sparse_set` is omitted, the original behavior is preserved:
+        # If `sparse` is omitted, the original behavior is preserved:
         # it does a checkout of the full tree.
         "some_project/src",
         "toolchains",
