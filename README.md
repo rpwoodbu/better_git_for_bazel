@@ -47,3 +47,5 @@ git_repository(
     ],
 )
 ```
+
+[Compare](https://github.com/rpwoodbu/better_git_for_bazel/compare/upstream...master) the changes against the upstream version.
