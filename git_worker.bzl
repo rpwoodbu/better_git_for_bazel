@@ -95,11 +95,11 @@ def git_repo(ctx, directory):
 
     return struct(commit = actual_commit, shallow_since = shallow_date)
 
-def _report_progress(ctx, git_repo, *, shallow_failed = False):
-    warning = ""
-    if shallow_failed:
-        warning = " (shallow fetch failed, fetching full history)"
-    ctx.report_progress("Cloning %s of %s%s" % (git_repo.reset_ref, git_repo.remote, warning))
+def _report_progress(ctx, git_repo, *, warning = None):
+    suffix = ""
+    if warning:
+        suffix = " ({})".format(warning)
+    ctx.report_progress("Cloning %s of %s%s" % (git_repo.reset_ref, git_repo.remote, suffix))
 
 def _update(ctx, git_repo):
     ctx.delete(git_repo.directory)
@@ -130,7 +130,10 @@ def fetch(ctx, git_repo):
     args = ["fetch", "origin", git_repo.fetch_ref]
     if ctx.attr.sparse_set:
         _execute(ctx, git_repo, ["mkdir", ".git/info"])  # Workaround bug in git.
-        args.append("--filter=blob:none")
+        sparse_set_st = _git_maybe_shallow(ctx, git_repo, *(args + ["--filter=blob:none"]))
+        if sparse_set_st.return_code == 0:
+            return
+        _report_progress(ctx, git_repo, warning = "partial clone failed, fetching all files")
     st = _git_maybe_shallow(ctx, git_repo, *args)
     if st.return_code == 0:
         return
@@ -142,7 +145,7 @@ def fetch(ctx, git_repo):
         # "ignore what is specified and fetch all tags".
         # The arguments below work correctly for both before 1.9 and after 1.9,
         # as we directly specify the list of references to fetch.
-        _report_progress(ctx, git_repo, shallow_failed = True)
+        _report_progress(ctx, git_repo, warning = "shallow fetch failed, fetching full history")
         _git(
             ctx,
             git_repo,
@@ -156,8 +159,11 @@ def fetch(ctx, git_repo):
 
 def reset(ctx, git_repo):
     if ctx.attr.sparse_set:
-        _git(ctx, git_repo, "sparse-checkout", "init", "--cone")
-        _git(ctx, git_repo, "sparse-checkout", "set", *ctx.attr.sparse_set)
+        st = _execute(ctx, git_repo, ["git", "sparse-checkout", "init", "--cone"])
+        if st.return_code == 0:
+            st = _execute(ctx, git_repo, ["git", "sparse-checkout", "set"] + ctx.attr.sparse_set)
+        if st.return_code != 0:
+            _report_progress(ctx, git_repo, warning = "sparse checkout failed, fetching full worktree")
     _git(ctx, git_repo, "reset", "--hard", git_repo.reset_ref)
 
 def clean(ctx, git_repo):
