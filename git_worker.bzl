@@ -129,6 +129,7 @@ def add_origin(ctx, git_repo, remote):
 def fetch(ctx, git_repo):
     args = ["fetch", "origin", git_repo.fetch_ref]
     if ctx.attr.sparse_set:
+        _execute(ctx, git_repo, ["mkdir", ".git/info"])  # Workaround bug in git.
         args.append("--filter=blob:none")
     st = _git_maybe_shallow(ctx, git_repo, *args)
     if st.return_code == 0:
