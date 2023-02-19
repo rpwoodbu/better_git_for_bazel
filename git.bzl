@@ -172,7 +172,8 @@ _common_attrs = {
             "List of directories to download. If empty, download all " +
             "directories. This will do a partial fetch of the repo to avoid " +
             "downloading more files than necessary. This makes depending on " +
-            "a small slice of a very large repository efficient.",)
+            "a small slice of a very large repository efficient.",
+    ),
 }
 
 def _git_repository_implementation(ctx):
