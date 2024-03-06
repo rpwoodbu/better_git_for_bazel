@@ -174,6 +174,12 @@ _common_attrs = {
             "downloading more files than necessary. This makes depending on " +
             "a small slice of a very large repository efficient.",
     ),
+    "fallback_to_full": attr.bool(
+        default = True,
+        doc =
+            "If a shallow or partial fetch does not work, fallback to " +
+            "a full fetch. If false, simply fail.",
+    ),
 }
 
 def _git_repository_implementation(ctx):
