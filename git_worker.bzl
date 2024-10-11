@@ -134,13 +134,15 @@ def fetch(ctx, git_repo):
         if sparse_st.return_code == 0:
             return
         if not ctx.attr.fallback_to_full:
-            fail("Partial fetch of {} failed.".format(git_repo.remote))
+            fail("Partial fetch of {} failed({}):\n{}".format(
+                git_repo.remote, sparse_st.return_code, sparse_st.stderr))
         _report_progress(ctx, git_repo, warning = "partial fetch failed, fetching all files")
     st = _git_maybe_shallow(ctx, git_repo, *args)
     if st.return_code == 0:
         return
     if not ctx.attr.fallback_to_full:
-        fail("Shallow fetch of {} failed.".format(git_repo.remote))
+        fail("Shallow fetch of {} failed({}):\n{}".format(
+            git_repo.remote, st.return_code, st.stderr))
     if ctx.attr.commit:
         # Perhaps uploadpack.allowReachableSHA1InWant or similar is not enabled on the server;
         # fall back to fetching all branches, tags, and history.
